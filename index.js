@@ -23,14 +23,14 @@ const addTodos = (request, response) => {
     let count = 0
     // 開始抓TCP封包handler
     request.on('data', (chunk) => {
-        // console.log(chunk); // this is buffer
+        console.log(chunk); // this is buffer
         body += chunk
-        count += 1
+        // count += 1
     })
     // 封包傳送完畢handler
     request.on('end', () => {
-        // console.log(body);  // 傳送資料
-        // console.log(count); // 傳送幾次
+        console.log(body);  // 傳送資料
+        console.log(count); // 傳送幾次
         try {
             const newdata = JSON.parse(body)
             // console.log(newdata.title);
@@ -38,7 +38,6 @@ const addTodos = (request, response) => {
                 title: newdata.title,
                 id: uuidv4()
             })
-
             response.writeHead(200, headers);
             response.write(JSON.stringify({
                 data: {
@@ -48,7 +47,7 @@ const addTodos = (request, response) => {
             }));
             response.end();
         } catch (error) {
-            errorHandler(response, error)
+            errorHandler.errorMsg(response, error)
         }
     })
 }
@@ -130,11 +129,9 @@ const requestListner = (request, response) => {
         case 'POST':
             addTodos(request, response)
             break;
-
         case 'PUT':
             updateTodos(request, response)
             break;
-
         case 'DELETE':
             if (request.url === "/") {
                 todos.length = 0
@@ -150,7 +147,6 @@ const requestListner = (request, response) => {
                 deleteTodos(request, response)
             }
             break;
-
         default:
             response.writeHead(404, headers);
             response.write(JSON.stringify({
