@@ -1,8 +1,10 @@
 # todolist test
-
 [render service](https://node-todo-test.onrender.com/)
 
-
+## postman Variable
+base_url設定
+dev: http://localhost:8081
+render: https://node-todo-test.onrender.com/
 
 ## todos RESTful API
 
