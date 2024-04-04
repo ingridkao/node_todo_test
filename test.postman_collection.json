@@ -1,0 +1,135 @@
+{
+	"info": {
+		"_postman_id": "54a8eeee-2132-4a68-bbc6-74789caa57e0",
+		"name": "test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1443496"
+	},
+	"item": [
+		{
+			"name": "Get todos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/todos?uid=0f346104-5515-4170-8763-18c6110347c9",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"todos"
+					],
+					"query": [
+						{
+							"key": "uid",
+							"value": "0f346104-5515-4170-8763-18c6110347c9"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add todos",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"聽音樂\",\n    \"statu\": 0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}",
+					"host": [
+						"{{base_url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit target todo",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"等一下要準備去聽演唱會\",\n    \"statu\": 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/todos/4613a8d0-cb46-4196-af5d-817bb0ccebd4",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"todos",
+						"4613a8d0-cb46-4196-af5d-817bb0ccebd4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete target todo",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/todos/4613a8d0-cb46-4196-af5d-817bb0ccebd4",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"todos",
+						"4613a8d0-cb46-4196-af5d-817bb0ccebd4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete all todo",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/todos",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"todos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit target todo(沒有寫)",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

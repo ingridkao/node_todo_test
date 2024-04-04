@@ -1,4 +1,6 @@
 const http = require('http')
+const url = require('url')
+
 const headers = require('./utils/header');
 const errorHandler = require('./utils/errorHandler');
 const { v4: uuidv4 } = require('uuid');
@@ -7,36 +9,42 @@ const port = 8081
 // 透過程序中的記憶體存放
 const todos = []
 
-const getTodos = (response) => {
+const getTodos = (params, response) => {
+    const newTodos = todos.filter(item => {
+        let result = true
+        if(result && params && params.uid) result = item.id == params.uid
+        if(result && params && params.statu) result = item.statu == params.statu
+        return result
+    })
     response.writeHead(200, headers);
     response.write(JSON.stringify({
         data: {
             status: 'success',
-            data: todos
-        },
+            data: newTodos || []
+        }
     }));
     response.end();
 }
 
 const addTodos = (request, response) => {
     let body = ''
-    let count = 0
+    // let count = 0
     // 開始抓TCP封包handler
     request.on('data', (chunk) => {
-        console.log(chunk); // this is buffer
+        // console.log(chunk); // this is buffer
         body += chunk
         // count += 1
     })
     // 封包傳送完畢handler
     request.on('end', () => {
-        console.log(body);  // 傳送資料
-        console.log(count); // 傳送幾次
+        // console.log(body);  // 傳送資料
+        // console.log(count); // 傳送幾次
         try {
             const newdata = JSON.parse(body)
-            // console.log(newdata.title);
             todos.push({
-                title: newdata.title,
-                id: uuidv4()
+                id: uuidv4(),
+                title: String(newdata.title) || '',
+                statu: Number(newdata.statu) || 0
             })
             response.writeHead(200, headers);
             response.write(JSON.stringify({
@@ -74,12 +82,14 @@ const updateTodos = (request, response) => {
         request.on('end', () => {
             try {
                 const newdata = JSON.parse(body)
-                todos[targetIndex]['title'] = newdata.title
+                todos[targetIndex]['title'] = newdata.title || todos[targetIndex]['title']
+                todos[targetIndex]['statu'] = newdata.statu || todos[targetIndex]['statu']
+
                 response.writeHead(200, headers);
                 response.write(JSON.stringify({
                     data: {
                         status: 'success',
-                        data: todos
+                        data: todos[targetIndex]
                     },
                 }));
                 response.end();
@@ -90,11 +100,9 @@ const updateTodos = (request, response) => {
     }
 }
 
-const deleteTodos = (request, response) => {
-    const requestURL = request.url
-    const targetID = requestURL.split('/').pop()
+const deleteTodos = (targetID, response) => {
     const targetIndex = todos.findIndex(item => item.id === targetID)
-    if (targetIndex === -1) {
+    if (targetIndex < 0) {
         response.writeHead(204, headers);
         response.write(JSON.stringify({
             data: {
@@ -108,55 +116,53 @@ const deleteTodos = (request, response) => {
         response.write(JSON.stringify({
             data: {
                 status: 'success',
-                data: todos
-            },
+                data: todos || []
+            }
         }));
+        response.end();
     }
 }
 
 const requestListner = (request, response) => {
-    switch (request.method) {
-        case 'OPTIONS':
-            response.writeHead(200, headers);
-            response.end();
-        case 'GET':
-            if (request.url === "/") {
-                getTodos(response)
-            } else {
-                // get target id
-            }
-            break;
-        case 'POST':
-            addTodos(request, response)
-            break;
-        case 'PUT':
-            updateTodos(request, response)
-            break;
-        case 'DELETE':
-            if (request.url === "/") {
-                todos.length = 0
-                response.writeHead(200, headers);
-                response.write(JSON.stringify({
-                    data: {
-                        status: 'success',
-                        data: todos
-                    },
-                }));
-                response.end();
-            } else {
-                deleteTodos(request, response)
-            }
-            break;
-        default:
-            response.writeHead(404, headers);
-            response.write(JSON.stringify({
-                data: {
-                    status: 'fall',
-                    message: 'Not found'
-                },
-            }));
-            response.end();
-            break;
+    const parseURL = url.parse(request.url, true)
+    const splitURL = parseURL.pathname.split('/todos/')
+
+    if(request.method === 'OPTIONS'){
+        response.writeHead(200, headers);
+        response.end();
+    }else if(splitURL.length > 0){
+        switch (request.method) {
+            case 'GET':
+                const params = parseURL.query
+                getTodos(params, response)
+                break;
+            case 'POST':
+                addTodos(request, response)
+                break;
+            case 'PUT':
+                updateTodos(request, response)
+                break;
+            case 'DELETE':
+                if (splitURL.length > 1 && splitURL[1] !== "") {
+                    deleteTodos(splitURL[1], response)
+                } else {
+                    todos.length = 0
+                    response.writeHead(200, headers);
+                    response.write(JSON.stringify({
+                        data: {
+                            status: 'success',
+                            data: todos
+                        },
+                    }));
+                    response.end();
+                }
+                break;
+            default:
+                errorHandler.noFound(response)
+                break;
+        }
+    }else{
+        errorHandler.noFound(response)
     }
 }
 
