@@ -9,6 +9,7 @@
   "author": "ingridkao",
   "license": "ISC",
   "dependencies": {
+    "mongoose": "^8.3.0",
     "uuid": "^9.0.1"
   }
 }
