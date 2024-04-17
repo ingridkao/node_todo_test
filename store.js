@@ -46,15 +46,34 @@ const activities = [
 
 const collects = [
     {
-        store_id: '870504',
-        store_name: '道生',
-        checkInTime: '2024/01/12 09:12'
+        event_id: '1',
+        event_name: '歡樂一夏',
+        limit: 8,
+        collection: [
+            {
+                store_id: '870504',
+                store_name: '道生',
+                checkInTime: '2024/01/12 09:12'
+            },
+            {
+                store_id: '240709',
+                store_name: '威京',
+                checkInTime: '2024/01/15 19:12'
+            }
+        ],
     },
     {
-        store_id: '240709',
-        store_name: '威京',
-        checkInTime: '2024/01/15 19:12'
-    }
+        event_id: '2',
+        event_name: '歡樂一夏夏',
+        limit: 4,
+        collection: [
+            {
+                store_id: '870504',
+                store_name: '道生',
+                checkInTime: '2024/01/12 09:12'
+            }
+        ],
+    },
 ]
 
 const albums = [
@@ -192,6 +211,34 @@ const getCollect = (params, response) => {
     response.end();
 }
 
+const getTargetCollect = (request, response) => {
+    let body = ''
+    request.on('data', (chunk) => {
+        body += chunk
+    })
+    request.on('end', () => {
+        try {
+            const newdata = JSON.parse(body)
+            const targetIndex = collects.findIndex(item => item.event_id === String(newdata.ac))
+            if (targetIndex === -1) {
+                response.writeHead(204, headers);
+                response.write(JSON.stringify({
+                    massage: 'No content',
+                }));
+                response.end();
+            } else {
+                response.writeHead(200, headers);
+                response.write(JSON.stringify({
+                    data: collects[targetIndex] || {}
+                }));
+                response.end();
+            }
+        } catch (error) {
+            errorHandler.errorMsg(response, error)
+        }
+    })
+}
+
 const getAlbums = (querys, response) => {
     const list = albums.filter(item => {
         let result = true
@@ -201,6 +248,35 @@ const getAlbums = (querys, response) => {
     response.writeHead(200, headers);
     response.write(JSON.stringify(list || []));
     response.end();
+}
+
+const verifyScan = (request, response) => {
+    let body = ''
+    request.on('data', (chunk) => {
+        body += chunk
+    })
+    request.on('end', () => {
+        try {
+            const newdata = JSON.parse(body)
+            activities.push({
+                qrCode: String(newdata.ct),
+                longitude: String(newdata.lon),
+                latitude: Number(newdata.lat)
+            })
+            response.writeHead(200, headers);
+            response.write(JSON.stringify({
+                data: {
+                    event_id: 2,
+                    id: 241571,
+                    name: '大統一門市',
+                    date: '2024/07/31 24:45'
+                },
+            }));
+            response.end();
+        } catch (error) {
+            errorHandler.errorMsg(response, error)
+        }
+    })
 }
 
 const requestListner = (request, response) => {
@@ -249,27 +325,6 @@ const requestListner = (request, response) => {
                 const querys = parseURL.query
                 getAlbums(querys, response)
                 break;
-            // case 'POST':
-            //     addActivities(request, response)
-            //     break;
-            // case 'PUT':
-            //     updateActivities(request, response)
-            //     break;
-            // case 'DELETE':
-            //     if (splitURL.length > 1 && splitURL[1] !== "") {
-            //         deleteActivities(splitURL[1], response)
-            //     } else {
-            //         activities.length = 0
-            //         response.writeHead(200, headers);
-            //         response.write(JSON.stringify({
-            //             data: {
-            //                 status: 'success',
-            //                 data: activities
-            //             },
-            //         }));
-            //         response.end();
-            //     }
-            //     break;
             default:
                 errorHandler.noFound(response)
                 break;
@@ -280,6 +335,20 @@ const requestListner = (request, response) => {
             case 'GET':
                 const params = parseURL.query
                 getCollect(params, response)
+                break;
+            case 'POST':
+                getTargetCollect(request, response)
+                break;
+
+            default:
+                errorHandler.noFound(response)
+                break;
+        }
+    } else if (parseURL.pathname.includes('/scan')) {
+        // const splitURL = parseURL.pathname.split('/collect/')
+        switch (request.method) {
+            case 'POST':
+                verifyScan(request, response)
                 break;
             default:
                 errorHandler.noFound(response)
