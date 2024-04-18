@@ -13,30 +13,23 @@ const activities = [
         title: '測試LINE登入1',
         statu: 1,
         img: 'https://i.imgur.com/UjJvQuU.png',
-        link: '/activity'
+        link: '/activity/1'
     }, {
         id: 2,
         title: '測試LINE登入2',
         statu: 1,
         img: 'https://i.imgur.com/00NrfI2.png',
-        link: '/activity'
+        link: '/activity/2'
     },
     {
         id: 3,
         title: '預告活動',
         statu: 2,
         // img: 'https://picsum.photos/seed/picsum/400/300',
-        link: '/activity'
+        link: '/activity/3'
     },
     {
         id: 4,
-        title: '全台7-11門市',
-        statu: 1,
-        // img: 'https://picsum.photos/seed/picsum/400/300',
-        link: '/mapStore '
-    },
-    {
-        id: 5,
         title: '使徒來襲(已結束)',
         statu: 0,
         // img: 'https://picsum.photos/seed/picsum/400/300',
